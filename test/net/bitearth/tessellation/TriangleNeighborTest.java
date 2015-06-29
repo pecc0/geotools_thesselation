@@ -13,6 +13,8 @@ public class TriangleNeighborTest {
 		Assert.assertEquals(0b0110010, Triangle.getNeighbor(0b0011010, 2, 0));
 		
 		Assert.assertEquals(0b1110010, Triangle.getNeighbor(0b1010010, 2, 0));
+		
+		Assert.assertEquals(0b100011010, Triangle.getNeighbor(0b011111010, 3, 1));
 	}
 	
 	@Test
@@ -26,5 +28,7 @@ public class TriangleNeighborTest {
 		Assert.assertEquals(0b1001000, Triangle.getNeighbor(0b1000001, 2, 2));
 		
 		Assert.assertEquals(0b0110110, Triangle.getNeighbor(0b0010101, 2, 2));
+		
+		Assert.assertEquals(0b001000101, Triangle.getNeighbor(0b011001110, 3, 1));
 	}
 }
