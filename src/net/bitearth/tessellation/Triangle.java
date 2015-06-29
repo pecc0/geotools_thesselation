@@ -3,44 +3,103 @@ package net.bitearth.tessellation;
 public class Triangle {
 	public final static int MAX_DIVISION_LEVEL = 14; 
 	
-	private final long neighbour0, neighbour1, neighbour2; //The neighbor triangles within the corresponding level
+	public static long getNeighbor(long triangleAddress, int level, int edgeIndex) {
+		NeighborInPlaneResult res = new NeighborInPlaneResult();
+		getNeightborInPlane(triangleAddress, level, edgeIndex, res);
+		if (res.rotate == -1) {
+			long result = res.address & 0b111;
+			for (int l = 1; l <= level; l++) {
+				result |= ((((res.address >> (l * 2 + 1)) & 0b11) + 1) % 3) << (l * 2 + 1);
+			}
+			return result;
+		} else if (res.rotate == 1) {
+			long result = res.address & 0b111;
+			for (int l = 1; l <= level; l++) {
+				result |= ((((res.address >> (l * 2 + 1)) & 0b11) + 3 - 1) % 3) << (l * 2 + 1);
+			}
+			return result;
+		}
+		return res.address;
+	}
 	
-	public Triangle(long neighbour0, long neighbour1, long neighbour2) {
-		super();
-		this.neighbour0 = neighbour0;
-		this.neighbour1 = neighbour1;
-		this.neighbour2 = neighbour2;
+	
+	//TODO this can be optimized in a single long
+	private static class NeighborInPlaneResult {
+		long address;
+		int rotate; //rotate the result to get the actual triangle. -1=ccw, 1=cw, 0=no rotation 
+	}
+	
+	private static void getNeightborInPlane(long triangleAddress, int level, int edgeIndex, NeighborInPlaneResult result) {
+		assert (triangleAddress & (-1 << (level * 2 + 3))) == 0;
+		assert(level >= 0);
+		assert(edgeIndex >= 0 && edgeIndex <= 2);
+		
+		if (level <= 0) {
+			//octahedron triangle
+			if (edgeIndex == 0) {
+				//only change the hemisphere
+				result.address = triangleAddress ^ 0b100;
+			} else {
+				//can be written better but will not be clear
+				if ((triangleAddress & 0b100) == 0) {
+					//northern hemisphere
+					if (edgeIndex == 1) {
+						//edge 1 - go to next triangle and set that the result must be rotated ccw
+						result.address = (triangleAddress + 1) % 4;
+						result.rotate = -1;
+					} else {
+						//edge 2 - go to previous triangle and set that the result must be rotated clockwise
+						result.address = (triangleAddress + 4 - 1) % 4;
+						result.rotate = 1;
+					}
+				} else {
+					//southern
+					if (edgeIndex == 1) {
+						//edge 1 - go to previous triangle and set that the result must be rotated clockwise
+						result.address = (((triangleAddress & 0b11) + 4 - 1) % 4) | 0b100;
+						result.rotate = -1;
+					} else {
+						//edge 2 - go to next triangle and set that the result must be rotated ccw
+						result.address = (((triangleAddress & 0b11) + 1) % 4) | 0b100;
+						result.rotate = 1;
+					}
+				}
+			}
+		} else {
+			long parent = getParent(triangleAddress, level);
+			
+			int triangleType = (int) ((triangleAddress >>> (level * 2 + 1)) & 0b11L);
+			if (triangleType == 0b11) {
+				//triangle # 3 is surrounded by the other parts of the parent
+				//to edge 0 corresponds triangle 2 from the parent, 1->0, 2->1
+				result.address = parent | (((edgeIndex + 2) % 3L) << (level * 2 + 1));
+			} else {
+				//triangle type 2 has triangle type 3 from the same parent at edge 0
+				//type 1 at edge 2
+				//type 0 at edge 1
+				if ((triangleType + 1) % 3 == edgeIndex) {
+					result.address = parent | (0b11L << (level * 2 + 1));
+				} else {
+					//find the neighbor at same edge of the parent
+					getNeightborInPlane(parent, level - 1, edgeIndex, result);
+					
+					//now inside the parent neighbor find the triangle that is next to ours. It is either with
+					//edgeindex or with edgeindex + 1 depending on whether ours is with edge index or not
+					if (triangleType == edgeIndex) {
+						result.address |= (((edgeIndex + 1) % 3L) << (level * 2 + 1));
+					} else {
+						result.address |= (edgeIndex << (level * 2 + 1));
+					}
+				}
+			}
+		}
+		
 	}
 
-	/**
-	 * 
-	 * @param index 0..2
-	 * @return
-	 */
-	public long getNeighbour(int index) {
-		switch (index) {
-		case 0:
-			return neighbour0;
-		case 1:
-			return neighbour1;
-		case 2:
-			return neighbour2;
-		}
-		return -1;
+	public static long getParent(long triangleAddress, int level) {
+		return (0xffffffffffffffffL >>> (64 - (level * 2 + 1))) & triangleAddress;
 	}
-/*
-	public Vertex3D v(int index) {
-		switch (index) {
-		case 0:
-			return v0;
-		case 1:
-			return v1;
-		case 2:
-			return v2;
-		}
-		return null;
-	}
-	*/
+	
 	public static boolean isUpside(long address, int level) {
 		//start with check if root is in northern or southern hemisphere
 		boolean result = (address & 0b100) == 0;
