@@ -3,6 +3,13 @@ package net.bitearth.tessellation;
 public class Triangle {
 	public final static int MAX_DIVISION_LEVEL = 14; 
 	
+	//same for north/south pole but in south pole the index has 3rd bit set (which must be removed before using this)
+	//next traingle is those at edge 2 in northern and edge 1 in southern
+	public final static int[] OCTAHEDRON_NEXT_TRIANGLES = new int[]{1, 3, 0, 2};
+	
+	//next traingle is those at edge 1. At edge 0 is the other hemisphere
+	public final static int[] OCTAHEDRON_PREV_TRIANGLES = new int[]{2, 0, 3, 1};
+	
 	public static long getNeighbor(long triangleAddress, int level, int edgeIndex) {
 		NeighborInPlaneResult res = new NeighborInPlaneResult();
 		getNeightborInPlane(triangleAddress, level, edgeIndex, res);
@@ -44,23 +51,23 @@ public class Triangle {
 				if ((triangleAddress & 0b100) == 0) {
 					//northern hemisphere
 					if (edgeIndex == 1) {
-						//edge 1 - go to next triangle and set that the result must be rotated ccw
-						result.address = (triangleAddress + 1) % 4;
+						//edge 1 - go to prev triangle and set that the result must be rotated ccw
+						result.address = OCTAHEDRON_PREV_TRIANGLES[(int) triangleAddress];
 						result.rotate = -1;
 					} else {
-						//edge 2 - go to previous triangle and set that the result must be rotated clockwise
-						result.address = (triangleAddress + 4 - 1) % 4;
+						//edge 2 - go to next triangle and set that the result must be rotated clockwise
+						result.address = OCTAHEDRON_NEXT_TRIANGLES[(int) triangleAddress];
 						result.rotate = 1;
 					}
 				} else {
 					//southern
 					if (edgeIndex == 1) {
-						//edge 1 - go to previous triangle and set that the result must be rotated clockwise
-						result.address = (((triangleAddress & 0b11) + 4 - 1) % 4) | 0b100;
+						//edge 1 - go to next triangle and set that the result must be rotated clockwise
+						result.address = OCTAHEDRON_NEXT_TRIANGLES[(int)(triangleAddress & 0b11)] | 0b100;
 						result.rotate = -1;
 					} else {
-						//edge 2 - go to next triangle and set that the result must be rotated ccw
-						result.address = (((triangleAddress & 0b11) + 1) % 4) | 0b100;
+						//edge 2 - go to previous triangle and set that the result must be rotated ccw
+						result.address = OCTAHEDRON_PREV_TRIANGLES[(int)(triangleAddress & 0b11)] | 0b100;
 						result.rotate = 1;
 					}
 				}
@@ -68,7 +75,7 @@ public class Triangle {
 		} else {
 			long parent = getParent(triangleAddress, level);
 			
-			int triangleType = (int) ((triangleAddress >>> (level * 2 + 1)) & 0b11L);
+			int triangleType = getTriangleType(triangleAddress, level);
 			if (triangleType == 0b11) {
 				//triangle # 3 is surrounded by the other parts of the parent
 				//to edge 0 corresponds triangle 2 from the parent, 1->0, 2->1
@@ -94,6 +101,10 @@ public class Triangle {
 			}
 		}
 		
+	}
+
+	public static int getTriangleType(long triangleAddress, int level) {
+		return (int) ((triangleAddress >>> (level * 2 + 1)) & 0b11L);
 	}
 
 	public static long getParent(long triangleAddress, int level) {

@@ -19,16 +19,18 @@ public class TriangleNeighborTest {
 	
 	@Test
 	public void testInterOctahedronTriangles() {
+		//north/south switch
 		Assert.assertEquals(0b0001101, Triangle.getNeighbor(0b0100001, 2, 0));
 		
 		Assert.assertEquals(0b0101101, Triangle.getNeighbor(0b0000001, 2, 0));
 		
-		Assert.assertEquals(0b0010010, Triangle.getNeighbor(0b0110001, 2, 1));
+		//same hemisphere
+		Assert.assertEquals(0b0010000, Triangle.getNeighbor(0b0110001, 2, 1));
 		
-		Assert.assertEquals(0b1001000, Triangle.getNeighbor(0b1000001, 2, 2));
+		Assert.assertEquals(0b1001011, Triangle.getNeighbor(0b1000001, 2, 2));
 		
-		Assert.assertEquals(0b0110110, Triangle.getNeighbor(0b0010101, 2, 2));
+		Assert.assertEquals(0b0110100, Triangle.getNeighbor(0b0010101, 2, 2));
 		
-		Assert.assertEquals(0b001000101, Triangle.getNeighbor(0b011001110, 3, 1));
+		Assert.assertEquals(0b001000100, Triangle.getNeighbor(0b011001110, 3, 1));
 	}
 }
