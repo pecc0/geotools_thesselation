@@ -2,6 +2,7 @@ package net.bitearth.tessellation;
 
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Tuple3f;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
@@ -64,4 +65,13 @@ public class Vector3D extends Vector3d {
 		y = y * len;
 		z = z * len;
 	}
+	
+	public Vector2d getPolarCoordinates() {
+		if (x == 0 && z == 0) {
+			return new Vector2d(0, y > 0 ? 90 : -90);
+		}
+		double xzLen = Math.sqrt(x * x + z * z);
+		return new Vector2d(Math.toDegrees(Math.atan2(z, x)), Math.toDegrees(Math.atan(y/xzLen)));
+	}
+
 }

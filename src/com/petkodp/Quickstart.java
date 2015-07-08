@@ -2,6 +2,8 @@ package com.petkodp;
 
 import java.io.File;
 
+import javax.swing.JPanel;
+
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -44,7 +46,7 @@ public class Quickstart {
         map.addLayer(layer);
 
         // Now display the map
-        JMapFrame.showMap(map);
+        JBitearthMapFrame.showMap(map);  
     }
 
 }
