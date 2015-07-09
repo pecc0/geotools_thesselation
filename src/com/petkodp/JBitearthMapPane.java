@@ -32,6 +32,26 @@ public class JBitearthMapPane extends JMapPane {
 		super(content);
 	}
 	
+	private void drawTriangle(int level, long address, int l, Graphics g, AffineTransform tr) {
+		if (l < level) {
+			for (int i = 0; i < 3; i++) {
+				drawTriangle(level, address | ( i << (l * 2 + 3) ), l+1, g, tr);
+			}
+		} else {
+			
+			Vector3D[] vertexes = Sphere.getVertexes(address, level);
+			Polygon p = new Polygon();
+			for (int v = 0; v < 3; v++) {
+				Vector2d worldCoord = vertexes[v].getPolarCoordinates();
+				
+				Point2D.Double pt2D = new Point2D.Double(worldCoord.x, worldCoord.y);
+				tr.transform(pt2D, pt2D);
+				p.addPoint((int)pt2D.x, (int)pt2D.y);
+			}
+			
+			g.drawPolygon(p);
+		}
+	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -43,24 +63,9 @@ public class JBitearthMapPane extends JMapPane {
 		
 		AffineTransform tr = getWorldToScreenTransform();
 		if (tr != null) {
-			
-			for (int i = 0; i < 8; i++) {
-				int level = 1;
-				for (int l = 0; l < level; l++) {
-					
-				}
-				Vector3D[] vertexes = Sphere.getVertexes(i, 0);
-				Polygon p = new Polygon();
-				for (int v = 0; v < 3; v++) {
-					Vector2d worldCoord = vertexes[v].getPolarCoordinates();
-					
-					Point2D.Double pt2D = new Point2D.Double(worldCoord.x, worldCoord.y);
-					tr.transform(pt2D, pt2D);
-					p.addPoint((int)pt2D.x, (int)pt2D.y);
-				}
-				
-				g.drawPolygon(p);
-			}
+			//for (int i = 0; i < 8; i++) {
+				drawTriangle(1, 0, 0, g, tr);
+			//}
 		}
 	}
 	

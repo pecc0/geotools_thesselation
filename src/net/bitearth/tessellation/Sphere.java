@@ -16,16 +16,20 @@ public class Sphere {
 	public final static Vector3D octSouthPole = new Vector3D(0, -RADIUS, 0);
 
 	public final static Vector3D[][] OCT_TRIANGLE_VERTICES = new Vector3D[][] {
-			{ octEquatorM00, octEquator00M, octNorthPole },
+			{ new Vector3D(octEquatorM00), octEquator00M, octNorthPole },
 			{ octEquator00P, octEquatorM00, octNorthPole },
 			{ octEquator00M, octEquatorP00, octNorthPole },
 			{ octEquatorP00, octEquator00P, octNorthPole },
 
-			{ octEquator00M, octEquatorM00, octSouthPole },
+			{ octEquator00M, new Vector3D(octEquatorM00), octSouthPole },
 			{ octEquatorM00, octEquator00P, octSouthPole },
 			{ octEquatorP00, octEquator00M, octSouthPole },
 			{ octEquator00P, octEquatorP00, octSouthPole }, };
 
+	static {
+		OCT_TRIANGLE_VERTICES[0][0].add(new Vector3D(0, 0, -0.00000000001));
+		OCT_TRIANGLE_VERTICES[4][1].add(new Vector3D(0, 0, -0.00000000001));
+	}
 	public Sphere() {
 
 	}

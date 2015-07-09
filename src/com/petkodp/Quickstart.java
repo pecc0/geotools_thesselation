@@ -29,7 +29,7 @@ public class Quickstart {
     public static void main(String[] args) throws Exception {
         // display a data store file chooser dialog for shapefiles
         //File file = JFileDataStoreChooser.showOpenFile("shp", null);
-        File file = new File("D:\\projects\\earthmap\\fao\\eco_zone\\eco_zone.shp");
+        File file = new File("ne_110m_land\\ne_110m_land.shp");
         if (file == null) {
             return;
         }
