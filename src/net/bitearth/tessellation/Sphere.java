@@ -47,10 +47,11 @@ public class Sphere {
 				result);
 
 		Vector3D[] edgeVertices = new Vector3D[3];
-		for (int l = 0; l < level; l++) {
+		for (int l = 1; l <= level; l++) {
 			int triangleType = Triangle.getTriangleType(triangle, l);
+			int skippedEdge = triangleType == 0b11 ? 0b11 : (triangleType + 1) % 3;
 			for (int e = 0; e < 3; e++) {
-				if (e != triangleType) {
+				if (e != skippedEdge) {
 					edgeVertices[e] = new Vector3D(result[e]);
 					edgeVertices[e].add(result[(e + 1) % 3]);
 					edgeVertices[e].setLength(RADIUS);
@@ -61,11 +62,8 @@ public class Sphere {
 					result[e] = edgeVertices[(e + 1) % 3];
 				}
 			} else {
-				for (int e = 0; e < 3; e++) {
-					if (e != triangleType) {
-						result[e] = edgeVertices[e];
-					}
-				}
+				result[(triangleType + 1) % 3] = edgeVertices[triangleType];
+				result[(triangleType + 2) % 3] = edgeVertices[(triangleType + 2) % 3];
 			}
 		}
 		return result;

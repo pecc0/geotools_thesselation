@@ -63,9 +63,9 @@ public class JBitearthMapPane extends JMapPane {
 		
 		AffineTransform tr = getWorldToScreenTransform();
 		if (tr != null) {
-			//for (int i = 0; i < 8; i++) {
-				drawTriangle(1, 0, 0, g, tr);
-			//}
+			for (int i = 0; i < 8; i++) {
+				drawTriangle(2, i, 0, g, tr);
+			}
 		}
 	}
 	
