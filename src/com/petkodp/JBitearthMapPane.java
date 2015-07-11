@@ -34,7 +34,7 @@ public class JBitearthMapPane extends JMapPane {
 	
 	private void drawTriangle(int level, long address, int l, Graphics g, AffineTransform tr) {
 		if (l < level) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				drawTriangle(level, address | ( i << (l * 2 + 3) ), l+1, g, tr);
 			}
 		} else {
@@ -64,8 +64,10 @@ public class JBitearthMapPane extends JMapPane {
 		AffineTransform tr = getWorldToScreenTransform();
 		if (tr != null) {
 			for (int i = 0; i < 8; i++) {
-				drawTriangle(2, i, 0, g, tr);
+				drawTriangle(5, i, 0, g, tr);
+			
 			}
+			//drawTriangle(2, 0, 0, g, tr);
 		}
 	}
 	
