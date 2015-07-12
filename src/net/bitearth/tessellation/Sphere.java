@@ -88,11 +88,11 @@ public class Sphere {
 
 	public static long getSubtriangleUnderPoint(long triangle, int level,
 			Vector3D point) {
-		Vector3D[] vertexs = getVertexes(triangle, level);
+		Vector3D[] vertexes = getVertexes(triangle, level);
 
-		Vector3D r0 = vertexs[0];
-		Vector3D r1 = vertexs[1];
-		Vector3D r2 = vertexs[2];
+		Vector3D r0 = vertexes[0];
+		Vector3D r1 = vertexes[1];
+		Vector3D r2 = vertexes[2];
 		Vector3D r3 = new Vector3D(ORIGIN);
 
 		Matrix4d matrT = buildTetrahedronBarycentricMatrix(r0, r1, r2, r3);
@@ -106,19 +106,18 @@ public class Sphere {
 		double trX, trY;
 		double sum = pointBarycentric.x + pointBarycentric.y
 				+ pointBarycentric.z;
-		trX = pointBarycentric.x / sum;
+		trX = pointBarycentric.z / sum;
 		trY = pointBarycentric.y / sum;
 
-		if (level == 0) {
-			// log->info("(%f, %f)", trX, trY);
-		}
-		// I chose (2,0) to be X axis, (2,1) to be the Y axis,
-		// so vertex 2 is the origin of the triangle coordinate system
+		//System.out.println("in=" + point + "bary=" + pointBarycentric + " trX=" + trX + " trY=" + trY);
+		
+		// I chose (0,2) to be X axis, (0,1) to be the Y axis,
+		// so vertex 0 is the origin of the triangle coordinate system
 		if (trX + trY < 0.5) {
-			return 2;
+			return 0;
 		} else {
 			if (trX > 0.5) {
-				return 0;
+				return 2;
 			} else if (trY > 0.5) {
 				return 1;
 			} else {
@@ -137,23 +136,23 @@ public class Sphere {
 		// inversing, and then just multiplying T^(-1) . r
 
 		result.m00 = r1.x - r4.x;
-		result.m01 = r1.y - r4.y;
-		result.m02 = r1.z - r4.z;
-		result.m03 = 0.;
+		result.m10 = r1.y - r4.y;
+		result.m20 = r1.z - r4.z;
+		result.m30 = 0.;
 
-		result.m10 = r2.x - r4.x;
+		result.m01 = r2.x - r4.x;
 		result.m11 = r2.y - r4.y;
-		result.m12 = r2.z - r4.z;
-		result.m13 = 0.;
+		result.m21 = r2.z - r4.z;
+		result.m31 = 0.;
 
-		result.m20 = r3.x - r4.x;
-		result.m21 = r3.y - r4.y;
+		result.m02 = r3.x - r4.x;
+		result.m12 = r3.y - r4.y;
 		result.m22 = r3.z - r4.z;
-		result.m23 = 0.;
+		result.m32 = 0.;
 
-		result.m30 = r4.x;
-		result.m31 = r4.y;
-		result.m32 = r4.z;
+		result.m03 = r4.x;
+		result.m13 = r4.y;
+		result.m23 = r4.z;
 		result.m33 = 1.;
 
 		result.invert();
@@ -182,6 +181,10 @@ public class Sphere {
 	public static Vector3D vec3dFromPolarCoordinates(double x, double y) {
 		double xRad = Math.toRadians(x);
 		double yRad = Math.toRadians(y);
-		return new Vector3D(RADIUS * Math.cos(xRad), RADIUS * Math.sin(yRad), RADIUS * Math.sin(xRad));
+		
+		double y3d = RADIUS * Math.sin(yRad);
+		double xzLen = Math.abs(RADIUS * Math.cos(yRad));
+		
+		return new Vector3D(xzLen * Math.cos(xRad), y3d, xzLen * Math.sin(xRad));
 	}
 }

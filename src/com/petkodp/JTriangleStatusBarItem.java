@@ -18,6 +18,7 @@ package com.petkodp;
 
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.util.Arrays;
@@ -94,6 +95,8 @@ public class JTriangleStatusBarItem extends StatusBarItem {
 
         setFormat(mapPane.getDisplayArea());
 
+        setLayout(new FlowLayout(FlowLayout.LEFT));
+        
         mapPane.addMouseListener(new MapMouseAdapter() {
             @Override
             public void onMouseEntered(MapMouseEvent ev) {
@@ -139,8 +142,13 @@ public class JTriangleStatusBarItem extends StatusBarItem {
      */
     private void displayCoords(DirectPosition2D p) {
     	Vector3D vec = Sphere.vec3dFromPolarCoordinates(p.getX(), p.getY());
-    	long tr = Sphere.getTriangleUnderPoint(0, vec);
-        label.setText(String.format("%3.2f %3.2f -> (%5.4f %5.4f %5.4f) -> %s", p.getX(), p.getY(), vec.x, vec.y, vec.z, Long.toBinaryString(tr)));
+    	long tr = Sphere.getTriangleUnderPoint(1, vec);
+    	StringBuilder triangleStr = new StringBuilder(Long.toBinaryString(tr));
+    	while (triangleStr.length() < 20) {
+    		triangleStr.insert(0, '0');
+    	}
+        label.setText(String.format("%s : %3.2f %3.2f -> (%5.4f %5.4f %5.4f)", triangleStr, p.getX(), p.getY(), vec.x, vec.y, vec.z));
+        //label.set
         ensureMinLabelWidth();
     }
 
