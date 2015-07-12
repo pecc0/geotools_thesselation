@@ -1,5 +1,6 @@
 package com.petkodp;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
@@ -8,12 +9,15 @@ import java.awt.geom.Point2D;
 import javax.vecmath.Vector2d;
 
 import net.bitearth.tessellation.Sphere;
+import net.bitearth.tessellation.TrianglesBFSIterator;
 import net.bitearth.tessellation.Vector3D;
 
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.swing.JMapPane;
 import org.geotools.swing.RenderingExecutor;
+import org.geotools.swing.event.MapMouseAdapter;
+import org.geotools.swing.event.MapMouseEvent;
 
 public class JBitearthMapPane extends JMapPane {
 
@@ -21,15 +25,27 @@ public class JBitearthMapPane extends JMapPane {
 
 	public JBitearthMapPane() {
 		super();
+		init();
 	}
 
 	public JBitearthMapPane(MapContent content, RenderingExecutor executor,
 			GTRenderer renderer) {
 		super(content, executor, renderer);
+		init();
 	}
 
 	public JBitearthMapPane(MapContent content) {
 		super(content);
+		init();
+	}
+	
+	private void init() {
+		addMouseListener(new MapMouseAdapter() {
+			@Override
+			public void onMouseClicked(MapMouseEvent ev) {
+				JBitearthMapPane.this.repaint();
+			}
+		});
 	}
 	
 	private void drawTriangle(int level, long address, int l, Graphics g, AffineTransform tr) {
@@ -52,6 +68,9 @@ public class JBitearthMapPane extends JMapPane {
 			g.drawPolygon(p);
 		}
 	}
+	
+	
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -60,14 +79,23 @@ public class JBitearthMapPane extends JMapPane {
 //        DirectPosition2D pos = new DirectPosition2D(event.getX(), event.getY());
 //        tr.transform(pos, pos);
         
+		TrianglesBFSIterator it = new TrianglesBFSIterator(JTriangleStatusBarItem.lastTriangleUnderCursor, JTriangleStatusBarItem.TEST_ZOOM);
 		
-		AffineTransform tr = getWorldToScreenTransform();
-		if (tr != null) {
+		AffineTransform transform = getWorldToScreenTransform();
+		if (transform != null) {
+			g.setColor(Color.BLUE);
 			for (int i = 0; i < 8; i++) {
-				//drawTriangle(1, i, 0, g, tr);
+				//drawTriangle(1, i, 0, g, transform);
 			
 			}
-			drawTriangle(4, 0, 0, g, tr);
+			//drawTriangle(2, 0, 0, g, tr);
+			
+			g.setColor(Color.BLACK);
+			
+			while (it.hasNext() && it.getUsed().size() < 1000) {
+				long tr = it.next();
+				drawTriangle(JTriangleStatusBarItem.TEST_ZOOM, tr, JTriangleStatusBarItem.TEST_ZOOM, g, transform);
+			}
 		}
 	}
 	

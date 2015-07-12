@@ -72,7 +72,10 @@ public class JTriangleStatusBarItem extends StatusBarItem {
     private int intLen;
     private int decLen;
     private String numFormat;
-
+    
+	public static long lastTriangleUnderCursor;
+	public final static int TEST_ZOOM = 5;
+	
     /**
      * Creates a new item to display cursor position for the given map pane.
      *
@@ -142,8 +145,8 @@ public class JTriangleStatusBarItem extends StatusBarItem {
      */
     private void displayCoords(DirectPosition2D p) {
     	Vector3D vec = Sphere.vec3dFromPolarCoordinates(p.getX(), p.getY());
-    	long tr = Sphere.getTriangleUnderPoint(1, vec);
-    	StringBuilder triangleStr = new StringBuilder(Long.toBinaryString(tr));
+    	lastTriangleUnderCursor = Sphere.getTriangleUnderPoint(TEST_ZOOM, vec);
+    	StringBuilder triangleStr = new StringBuilder(Long.toBinaryString(lastTriangleUnderCursor));
     	while (triangleStr.length() < 20) {
     		triangleStr.insert(0, '0');
     	}
